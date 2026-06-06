@@ -16,6 +16,7 @@ export default function CinemaHeader({
 }) {
   const navigate = useNavigate();
   const [showLogout, setShowLogout] = useState(false);
+  const [hoveredAction, setHoveredAction] = useState("");
   const [showMovieDropdown, setShowMovieDropdown] = useState(false);
   const [localSearch, setLocalSearch] = useState("");
   let user = null;
@@ -187,9 +188,32 @@ export default function CinemaHeader({
             {showLogout && (
               <>
                 <div style={hoverBridge}></div>
-                <button style={logoutBtn} onClick={handleLogout}>
-                  Đăng xuất
-                </button>
+                <div style={userDropdownMenu}>
+                  <button
+                    style={
+                      hoveredAction === "logout"
+                        ? userDropdownItemHover
+                        : userDropdownItem
+                    }
+                    onMouseEnter={() => setHoveredAction("logout")}
+                    onMouseLeave={() => setHoveredAction("")}
+                    onClick={handleLogout}
+                  >
+                    Đăng xuất
+                  </button>
+                  <button
+                    style={
+                      hoveredAction === "changePassword"
+                        ? userDropdownItemHover
+                        : userDropdownItem
+                    }
+                    onMouseEnter={() => setHoveredAction("changePassword")}
+                    onMouseLeave={() => setHoveredAction("")}
+                    onClick={() => navigate("/change-password")}
+                  >
+                    Đổi mật khẩu
+                  </button>
+                </div>
               </>
             )}
           </div>
@@ -374,20 +398,6 @@ const hoverBridge = {
   width: "120px",
   height: "12px",
 };
-const logoutBtn = {
-  position: "absolute",
-  top: "calc(100% + 10px)",
-  right: 0,
-  padding: "8px 12px",
-  background: "linear-gradient(135deg, #ef4444, #dc2626)",
-  color: "white",
-  border: "none",
-  borderRadius: "10px",
-  cursor: "pointer",
-  fontWeight: "700",
-  whiteSpace: "nowrap",
-  boxShadow: "0 10px 20px rgba(0,0,0,0.32)",
-};
 const historyBtn = {
   padding: "9px 12px",
   borderRadius: "10px",
@@ -397,6 +407,38 @@ const historyBtn = {
   color: "#ccfbf1",
   fontWeight: "700",
   cursor: "pointer",
+};
+const userDropdownMenu = {
+  position: "absolute",
+  top: "calc(100% + 10px)",
+  right: 0,
+  display: "flex",
+  flexDirection: "column",
+  gap: "6px",
+  background: "rgba(15,23,42,0.95)",
+  border: "1px solid rgba(148,163,184,0.35)",
+  borderRadius: "12px",
+  padding: "8px",
+  minWidth: "180px",
+  boxShadow: "0 12px 24px rgba(0,0,0,0.45)",
+  zIndex: 20,
+};
+const userDropdownItem = {
+  padding: "9px 12px",
+  borderRadius: "8px",
+  border: "1px solid transparent",
+  background: "rgba(30,41,59,0.5)",
+  color: "#cbd5e1",
+  cursor: "pointer",
+  fontWeight: "600",
+  textAlign: "left",
+  transition: "all .18s ease",
+};
+const userDropdownItemHover = {
+  ...userDropdownItem,
+  background: "linear-gradient(135deg, rgba(59,130,246,0.35), rgba(14,165,233,0.4))",
+  border: "1px solid rgba(125,211,252,0.6)",
+  color: "#e0f2fe",
 };
 const scheduleBtn = {
   padding: "9px 12px",

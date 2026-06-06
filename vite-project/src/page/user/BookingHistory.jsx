@@ -81,11 +81,12 @@ export default function BookingHistory() {
         <div style={card}>
           <h2 style={{ marginTop: 0 }}>Đơn đã đặt của bạn</h2>
 
-          <div style={{ overflowX: "auto" }}>
-            <table style={table}>
+          <div className="responsive-table-wrapper" style={{ overflowX: "auto" }}>
+            <table className="responsive-table" style={table}>
               <thead>
                 <tr>
                   <th style={th}>Mã đơn</th>
+                  <th style={th}>Rạp</th>
                   <th style={th}>Phim</th>
                   <th style={th}>Suất chiếu</th>
                   <th style={th}>Ghế</th>
@@ -99,7 +100,7 @@ export default function BookingHistory() {
               <tbody>
                 {loading && (
                   <tr>
-                    <td style={tdCenter} colSpan={9}>
+                    <td style={tdCenter} colSpan={10}>
                       Đang tải dữ liệu...
                     </td>
                   </tr>
@@ -107,7 +108,7 @@ export default function BookingHistory() {
 
                 {!loading && bookings.length === 0 && (
                   <tr>
-                    <td style={tdCenter} colSpan={9}>
+                    <td style={tdCenter} colSpan={10}>
                       Bạn chưa có đơn đặt vé nào.
                     </td>
                   </tr>
@@ -122,6 +123,7 @@ export default function BookingHistory() {
                     return (
                       <tr key={b.id}>
                         <td style={td}>{b.id}</td>
+                        <td style={td}>{b.cinemaName || "Không rõ"}</td>
                         <td style={td}>{b.movieTitle || "Không rõ"}</td>
                         <td style={td}>
                           {b.startTime
@@ -187,7 +189,7 @@ const card = {
   boxShadow: "0 10px 30px rgba(0,0,0,0.25)",
 };
 
-const table = { width: "100%", borderCollapse: "collapse", minWidth: 900 };
+const table = { width: "100%", borderCollapse: "collapse", minWidth: 0 };
 const th = {
   textAlign: "left",
   padding: "10px 8px",

@@ -98,7 +98,7 @@ export default function PaymentPage() {
 
         if (status === "CANCELLED") {
           const message =
-            nextRemaining <= 0 ? "Don_da_het_han_thanh_toan" : "Don_da_bi_huy";
+            nextRemaining <= 0 ? "Đơn đã hết hạn thanh toán" : "Đơn đã bị hủy";
           navigate(
             `/payment-result?status=FAILED&message=${message}&bookingId=${bookingId}`,
             { replace: true },
@@ -248,8 +248,7 @@ export default function PaymentPage() {
             fontSize: 12,
           }}
         >
-          Hệ thống tự kiểm tra mỗi 3 giây và tự hủy yêu cầu cũ bị treo để tránh
-          spam yêu cầu.
+          Lưu ý: Đơn sẽ tự động hủy nếu không thanh toán trong thời gian quy định.
         </p>
 
         <div
@@ -340,7 +339,7 @@ export default function PaymentPage() {
               <MetaRow label="Số tiền" value={`${amountText} VND`} />
             </div>
 
-            <div style={actions}>
+            <div className="responsive-actions" style={actions}>
               <button
                 style={primaryBtn}
                 disabled={checking || !isPending}
@@ -368,7 +367,7 @@ export default function PaymentPage() {
 
 function MetaRow({ label, value, onCopy }) {
   return (
-    <div style={metaRow}>
+    <div className="responsive-meta-row" style={metaRow}>
       <div style={metaLabel}>{label}</div>
       <div style={metaValue}>{value}</div>
       {onCopy && (

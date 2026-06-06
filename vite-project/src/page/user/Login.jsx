@@ -72,6 +72,7 @@ export default function Login() {
 
         <input
           name="username"
+          value={user.username}
           placeholder="Tên đăng nhập"
           onChange={handleChange}
           style={inputStyle}
@@ -80,6 +81,7 @@ export default function Login() {
         <input
           name="password"
           type="password"
+          value={user.password}
           placeholder="Mật khẩu"
           onChange={handleChange}
           style={inputStyle}
@@ -111,29 +113,36 @@ const containerStyle = {
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
-  height: "100vh",
+  minHeight: "100vh",
+  padding: "24px 12px",
   background: "linear-gradient(to right, #1e3c72, #2a5298)",
 };
 
 const cardStyle = {
-  width: "350px",
-  padding: "30px",
+  width: "min(100%, 400px)",
+  padding: "28px 20px",
   borderRadius: "15px",
   background: "white",
   boxShadow: "0 10px 30px rgba(0,0,0,0.2)",
   textAlign: "center",
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
 };
 
 const inputStyle = {
   width: "100%",
+  maxWidth: "320px",
   padding: "10px",
-  marginBottom: "15px",
+  marginBottom: "12px",
   borderRadius: "8px",
   border: "1px solid #ccc",
+  display: "block",
 };
 
 const buttonStyle = {
   width: "100%",
+  maxWidth: "320px",
   padding: "10px",
   background: "#ff4d4f",
   color: "white",

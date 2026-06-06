@@ -10,18 +10,16 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div
-      style={{ display: "flex", height: "100vh", backgroundColor: "#f0f2f5" }}
-    >
+    <div className="admin-layout">
       {/* 📌 SIDEBAR (Thanh menu bên trái) */}
-      <div style={sidebarStyle}>
+      <div className="admin-sidebar">
         <h2
           style={{ textAlign: "center", marginBottom: "30px", color: "white" }}
         >
           🎬 Quản trị
         </h2>
 
-        <div style={menuContainerStyle}>
+        <div className="admin-menu" style={menuContainerStyle}>
           {/* 👇 Đã thêm chữ "Quản lý Phim" vào đây 👇 */}
           <button
             style={
@@ -109,7 +107,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* 📌 MAIN CONTENT (Nội dung thay đổi bên phải) */}
-      <div style={{ flex: 1, padding: "20px", overflowY: "auto" }}>
+      <div className="admin-content">
         {/* Component <Outlet /> sẽ hiển thị nội dung của AddMovie vào đây */}
         <Outlet />
       </div>

@@ -5,6 +5,7 @@ export default function AdminBookingReport() {
   const [selectedCinemaId, setSelectedCinemaId] = useState("");
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [deleteLoadingId, setDeleteLoadingId] = useState(null);
 
   useEffect(() => {
     fetch("/api/cinemas")
@@ -25,18 +26,39 @@ export default function AdminBookingReport() {
     )
       .then((res) => res.json())
       .then((data) => setBookings(data || []))
-        .catch((err) => console.error("Lỗi tải đơn đặt vé:", err))
+      .catch((err) => console.error("Lỗi tải đơn đặt vé:", err))
       .finally(() => setLoading(false));
   }, [selectedCinemaId]);
 
+  const handleDeleteBooking = async (bookingId) => {
+    if (!window.confirm("Bạn có chắc chắn muốn xoá đơn này không?")) {
+      return;
+    }
+
+    setDeleteLoadingId(bookingId);
+    try {
+      const res = await fetch(`/api/admin/bookings/${bookingId}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) {
+        throw new Error(`Xoá đơn thất bại: ${res.status}`);
+      }
+      setBookings((prev) => prev.filter((booking) => booking.id !== bookingId));
+    } catch (err) {
+      console.error(err);
+      alert("Xoá đơn không thành công. Vui lòng thử lại.");
+    } finally {
+      setDeleteLoadingId(null);
+    }
+  };
+
   const stats = useMemo(() => {
-    const total = bookings.reduce(
+    const paidBookings = bookings.filter((b) => String(b.status) === "PAID");
+    const total = paidBookings.reduce(
       (sum, b) => sum + Number(b.totalPrice || 0),
       0,
     );
-    const paidCount = bookings.filter(
-      (b) => String(b.status) === "PAID",
-    ).length;
+    const paidCount = paidBookings.length;
     return {
       count: bookings.length,
       paidCount,
@@ -84,13 +106,13 @@ export default function AdminBookingReport() {
           </div>
         </div>
 
-        <div style={{ overflowX: "auto" }}>
-          <table style={table}>
+        <div className="responsive-table-wrapper" style={{ overflowX: "auto", maxHeight: "400px", overflowY: "auto" }}>
+          <table className="responsive-table" style={table}>
             <thead>
               <tr>
                 <th style={th}>Mã đơn</th>
                 <th style={th}>Người dùng</th>
-                <th style={th}>Phim</th>
+                <th style={{ ...th, textAlign: "left", paddingLeft: 12, minWidth: 180, maxWidth: 320, whiteSpace: "normal", wordBreak: "break-word" }}>Phim</th>
                 <th style={th}>Suất chiếu</th>
                 <th style={th}>Ghế đã đặt</th>
                 <th style={th}>Số ghế</th>
@@ -98,6 +120,7 @@ export default function AdminBookingReport() {
                 <th style={th}>Tổng tiền</th>
                 <th style={th}>Trạng thái</th>
                 <th style={th}>Tạo lúc</th>
+                <th style={th}>Hành động</th>
               </tr>
             </thead>
             <tbody>
@@ -122,8 +145,8 @@ export default function AdminBookingReport() {
                   <tr key={b.id}>
                     <td style={td}>{b.id}</td>
                     <td style={td}>{b.username}</td>
-                    <td style={td}>{b.movieTitle}</td>
-                    <td style={td}>
+                    <td style={{ ...td, textAlign: "left", paddingLeft: 12, minWidth: 180, maxWidth: 320, whiteSpace: "normal", wordBreak: "break-word" }}>{b.movieTitle}</td>
+                     <td style={{ ...td, textAlign: "left", paddingLeft: 12 }}>
                       {b.startTime
                         ? new Date(b.startTime).toLocaleString("vi-VN")
                         : "Không rõ"}
@@ -139,6 +162,19 @@ export default function AdminBookingReport() {
                       {b.createdAt
                         ? new Date(b.createdAt).toLocaleString("vi-VN")
                         : "Không rõ"}
+                    </td>
+                    <td style={td}>
+                      {(b.status === "PENDING" || b.status === "CANCELLED") ? (
+                        <button
+                          style={deleteBtn}
+                          onClick={() => handleDeleteBooking(b.id)}
+                          disabled={deleteLoadingId === b.id}
+                        >
+                          {deleteLoadingId === b.id ? "Đang xoá..." : "Xoá"}
+                        </button>
+                      ) : (
+                        <span style={{ color: "#94a3b8" }}>Không</span>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -195,7 +231,7 @@ const statLabel = {
 };
 const statValue = { fontSize: 18, fontWeight: "bold", color: "#0f172a" };
 
-const table = { width: "100%", borderCollapse: "collapse", minWidth: 1020 };
+const table = { width: "100%", borderCollapse: "collapse", minWidth: 0 };
 const th = {
   textAlign: "left",
   padding: "10px 8px",
@@ -204,3 +240,12 @@ const th = {
 };
 const td = { padding: "10px 8px", borderBottom: "1px solid #e5e7eb" };
 const tdCenter = { ...td, textAlign: "center" };
+const deleteBtn = {
+  padding: "6px 10px",
+  borderRadius: 8,
+  border: "none",
+  background: "#ef4444",
+  color: "white",
+  fontWeight: "600",
+  cursor: "pointer",
+};

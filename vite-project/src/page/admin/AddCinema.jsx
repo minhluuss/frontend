@@ -198,7 +198,7 @@ const card = {
   borderRadius: "12px",
   boxShadow: "0 5px 15px rgba(0,0,0,0.05)",
 };
-const tableCard = { ...card, marginTop: "30px", width: "700px" };
+const tableCard = { ...card, marginTop: "30px", width: "700px", maxHeight: "400px", overflowY: "auto" };
 const input = {
   width: "100%",
   padding: "12px",

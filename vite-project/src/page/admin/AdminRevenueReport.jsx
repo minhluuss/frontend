@@ -1,11 +1,17 @@
 ﻿import { useEffect, useMemo, useState } from "react";
 
 export default function AdminRevenueReport() {
+  // --- STATE MỚI CHO RẠP ---
+  const [cinemas, setCinemas] = useState([]);
+  const [selectedCinemaId, setSelectedCinemaId] = useState("");
+
   const [weeklyRows, setWeeklyRows] = useState([]);
   const [monthlyRows, setMonthlyRows] = useState([]);
-  const [topMovies, setTopMovies] = useState([]);
+  const [weeklyTopMovies, setWeeklyTopMovies] = useState([]);
+  const [monthlyTopMovies, setMonthlyTopMovies] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [topLoading, setTopLoading] = useState(false);
+  const [weeklyTopLoading, setWeeklyTopLoading] = useState(false);
+  const [monthlyTopLoading, setMonthlyTopLoading] = useState(false);
   const [selectedWeek, setSelectedWeek] = useState("");
   const [selectedMonth, setSelectedMonth] = useState("");
   const [weekFromDate, setWeekFromDate] = useState("");
@@ -13,13 +19,41 @@ export default function AdminRevenueReport() {
   const [monthFromDate, setMonthFromDate] = useState("");
   const [monthToDate, setMonthToDate] = useState("");
 
+ 
+
+  // Lấy danh sách rạp
   useEffect(() => {
+    fetch("/api/cinemas")
+      .then((res) => res.json())
+      .then((data) => {
+        const rows = Array.isArray(data) ? data : [];
+        setCinemas(rows);
+        if (rows.length > 0) {
+          setSelectedCinemaId(String(rows[0].id));
+        }
+      })
+      .catch((err) => {
+        console.error("Lỗi tải danh sách rạp:", err);
+        setCinemas([]);
+      });
+  }, []);
+
+  // Lấy thống kê doanh thu (gọi lại khi selectedCinemaId thay đổi)
+  useEffect(() => {
+    if (!selectedCinemaId) {
+      setWeeklyRows([]);
+      setMonthlyRows([]);
+      return;
+    }
+
     setLoading(true);
+    const cinemaQuery = `&cinemaId=${selectedCinemaId}`;
+
     Promise.all([
-      fetch("/api/admin/revenue/weekly?weeks=12").then(
+      fetch(`/api/admin/revenue/weekly?weeks=12${cinemaQuery}`).then(
         (res) => res.json(),
       ),
-      fetch("/api/admin/revenue/monthly?months=12").then(
+      fetch(`/api/admin/revenue/monthly?months=12${cinemaQuery}`).then(
         (res) => res.json(),
       ),
     ])
@@ -33,39 +67,61 @@ export default function AdminRevenueReport() {
         setMonthlyRows([]);
       })
       .finally(() => setLoading(false));
-  }, []);
+  }, [selectedCinemaId]);
 
+  // Lấy top phim theo tuần
   useEffect(() => {
-    const range = resolveTopMoviesRange({
-      selectedWeek,
-      selectedMonth,
-      weekFromDate,
-      weekToDate,
-      monthFromDate,
-      monthToDate,
-    });
+    const range = resolveTopMoviesRange(
+      {
+        selectedWeek,
+        weekFromDate,
+        weekToDate,
+      },
+      "weekly",
+    );
 
     const params = new URLSearchParams({ limit: "50" });
     if (range.from) params.set("from", range.from);
     if (range.to) params.set("to", range.to);
+    if (selectedCinemaId) params.set("cinemaId", selectedCinemaId);
 
-    setTopLoading(true);
+    setWeeklyTopLoading(true);
     fetch(`/api/admin/top-movies?${params.toString()}`)
       .then((res) => res.json())
-      .then((data) => setTopMovies(Array.isArray(data) ? data : []))
+      .then((data) => setWeeklyTopMovies(Array.isArray(data) ? data : []))
       .catch((err) => {
-        console.error("Lỗi tải top phim:", err);
-        setTopMovies([]);
+        console.error("Lỗi tải top phim tuần:", err);
+        setWeeklyTopMovies([]);
       })
-      .finally(() => setTopLoading(false));
-  }, [
-    selectedWeek,
-    selectedMonth,
-    weekFromDate,
-    weekToDate,
-    monthFromDate,
-    monthToDate,
-  ]);
+      .finally(() => setWeeklyTopLoading(false));
+  }, [selectedWeek, weekFromDate, weekToDate, selectedCinemaId]);
+
+  // Lấy top phim theo tháng
+  useEffect(() => {
+    const range = resolveTopMoviesRange(
+      {
+        selectedMonth,
+        monthFromDate,
+        monthToDate,
+      },
+      "monthly",
+    );
+
+    const params = new URLSearchParams({ limit: "50" });
+    if (range.from) params.set("from", range.from);
+    if (range.to) params.set("to", range.to);
+    if (selectedCinemaId) params.set("cinemaId", selectedCinemaId); // Thêm cinemaId vào query
+
+    setMonthlyTopLoading(true);
+    fetch(`/api/admin/top-movies?${params.toString()}`)
+      .then((res) => res.json())
+      .then((data) => setMonthlyTopMovies(Array.isArray(data) ? data : []))
+      .catch((err) => {
+        console.error("Lỗi tải top phim tháng:", err);
+        setMonthlyTopMovies([]);
+      })
+      .finally(() => setMonthlyTopLoading(false));
+  }, [selectedMonth, monthFromDate, monthToDate, selectedCinemaId]);
 
   const filteredWeeklyRows = useMemo(() => {
     if (!selectedWeek) return weeklyRows;
@@ -144,6 +200,22 @@ export default function AdminRevenueReport() {
       <div style={card}>
         <h2 style={{ marginTop: 0 }}>Thống kê doanh thu</h2>
 
+        <div style={filterRow}>
+          <label style={filterLabel}>Rạp</label>
+          <select
+            value={selectedCinemaId}
+            onChange={(e) => setSelectedCinemaId(e.target.value)}
+            style={filterInput}
+          >
+            {cinemas.length === 0 && <option value="">Không có rạp</option>}
+            {cinemas.map((cinema) => (
+              <option key={cinema.id} value={cinema.id}>
+                {cinema.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
         {loading && <div style={loadingText}>Đang tải dữ liệu...</div>}
 
         <div style={grid}>
@@ -201,35 +273,34 @@ export default function AdminRevenueReport() {
             </button>
           )}
         </div>
-        <table style={table}>
+        <div className="responsive-table-wrapper" style={{ maxHeight: "400px", overflowY: "auto" }}>
+          <table className="responsive-table" style={table}>
           <thead>
             <tr>
               <th style={th}>Phim</th>
-              <th style={th}>Rạp</th>
               <th style={th}>Phòng</th>
               <th style={th}>Số ghế đặt</th>
               <th style={th}>Số đơn</th>
             </tr>
           </thead>
           <tbody>
-            {topLoading && (
+            {weeklyTopLoading && (
               <tr>
                 <td colSpan={5} style={tdCenter}>
                   Đang tải top phim...
                 </td>
               </tr>
             )}
-            {!topLoading && topMovies.length === 0 && (
+            {!weeklyTopLoading && weeklyTopMovies.length === 0 && (
               <tr>
                 <td colSpan={5} style={tdCenter}>
                   Không có dữ liệu
                 </td>
               </tr>
             )}
-            {topMovies.map((row, idx) => (
+            {weeklyTopMovies.map((row, idx) => (
               <tr key={`${row.movieId}-${row.roomId}-${idx}`}>
                 <td style={td}>{row.movieTitle}</td>
-                <td style={td}>{row.cinemaName}</td>
                 <td style={td}>{row.roomName}</td>
                 <td style={td}>{row.seatCount}</td>
                 <td style={td}>{row.bookingCount}</td>
@@ -237,6 +308,7 @@ export default function AdminRevenueReport() {
             ))}
           </tbody>
         </table>
+        </div>
 
         <h3 style={sectionTitle}>Theo tháng</h3>
         <div style={filterRow}>
@@ -278,35 +350,34 @@ export default function AdminRevenueReport() {
             </button>
           )}
         </div>
-        <table style={table}>
-          <thead>
-            <tr>
-              <th style={th}>Phim</th>
-              <th style={th}>Rạp</th>
-              <th style={th}>Phòng</th>
-              <th style={th}>Số ghế đặt</th>
-              <th style={th}>Số đơn</th>
-            </tr>
+        <div className="responsive-table-wrapper">
+          <table className="responsive-table" style={table}>
+            <thead>
+              <tr>
+                <th style={th}>Phim</th>
+                <th style={th}>Phòng</th>
+                <th style={th}>Số ghế đặt</th>
+                <th style={th}>Số đơn</th>
+              </tr>
           </thead>
           <tbody>
-            {topLoading && (
+            {monthlyTopLoading && (
               <tr>
                 <td colSpan={5} style={tdCenter}>
                   Đang tải top phim...
                 </td>
               </tr>
             )}
-            {!topLoading && topMovies.length === 0 && (
+            {!monthlyTopLoading && monthlyTopMovies.length === 0 && (
               <tr>
                 <td colSpan={5} style={tdCenter}>
                   Không có dữ liệu
                 </td>
               </tr>
             )}
-            {topMovies.map((row, idx) => (
+            {monthlyTopMovies.map((row, idx) => (
               <tr key={`${row.movieId}-${row.roomId}-${idx}`}>
                 <td style={td}>{row.movieTitle}</td>
-                <td style={td}>{row.cinemaName}</td>
                 <td style={td}>{row.roomName}</td>
                 <td style={td}>{row.seatCount}</td>
                 <td style={td}>{row.bookingCount}</td>
@@ -314,11 +385,13 @@ export default function AdminRevenueReport() {
             ))}
           </tbody>
         </table>
+        </div>
       </div>
     </div>
   );
 }
 
+// --- STYLES ---
 const container = {
   minHeight: "100vh",
   padding: "20px 10px",
@@ -357,6 +430,19 @@ const statValue = { fontSize: 18, fontWeight: "bold", color: "#0f172a" };
 
 const sectionTitle = { marginTop: 24, marginBottom: 12 };
 const loadingText = { marginBottom: 12, color: "#475569" };
+
+// Style mới cho hàng lọc toàn cục (global filter)
+const globalFilterRow = {
+  display: "flex",
+  alignItems: "center",
+  gap: 12,
+  marginBottom: 24,
+  padding: "16px",
+  backgroundColor: "#f8fafc",
+  borderRadius: "8px",
+  border: "1px solid #e2e8f0"
+};
+
 const filterRow = {
   display: "flex",
   alignItems: "center",
@@ -374,6 +460,7 @@ const filterInput = {
   borderRadius: 8,
   border: "1px solid #d1d5db",
   background: "white",
+  minWidth: "150px"
 };
 const clearBtn = {
   padding: "8px 12px",
@@ -395,6 +482,7 @@ const th = {
 const td = { padding: "10px 8px", borderBottom: "1px solid #e5e7eb" };
 const tdCenter = { ...td, textAlign: "center" };
 
+// --- HELPER FUNCTIONS ---
 function getWeekStartDate(year, week) {
   if (!year || !week) return null;
   const simple = new Date(Date.UTC(year, 0, 1 + (week - 1) * 7));
@@ -405,7 +493,7 @@ function getWeekStartDate(year, week) {
   return isoWeekStart;
 }
 
-function resolveTopMoviesRange(filters) {
+function resolveTopMoviesRange(filters, type) {
   const {
     selectedWeek,
     selectedMonth,
@@ -415,7 +503,7 @@ function resolveTopMoviesRange(filters) {
     monthToDate,
   } = filters;
 
-  if (weekFromDate || weekToDate || selectedWeek) {
+  if (type === "weekly" && (weekFromDate || weekToDate || selectedWeek)) {
     let from = weekFromDate || "";
     let to = weekToDate || "";
 
@@ -435,7 +523,7 @@ function resolveTopMoviesRange(filters) {
     return { from: from || undefined, to: to || undefined };
   }
 
-  if (monthFromDate || monthToDate || selectedMonth) {
+  if (type === "monthly" && (monthFromDate || monthToDate || selectedMonth)) {
     let from = monthFromDate || "";
     let to = monthToDate || "";
 
@@ -456,5 +544,3 @@ function resolveTopMoviesRange(filters) {
 
   return { from: undefined, to: undefined };
 }
-
-

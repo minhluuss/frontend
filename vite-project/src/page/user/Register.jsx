@@ -9,6 +9,7 @@ export default function Register() {
   });
 
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -38,6 +39,7 @@ export default function Register() {
       return;
     }
 
+    setLoading(true);
     fetch("/api/auth/register", {
       method: "POST",
       headers: {
@@ -58,7 +60,8 @@ export default function Register() {
       })
       .catch((err) => {
         setError(err.message);
-      });
+      })
+      .finally(() => setLoading(false));
   };
 
   return (
@@ -67,18 +70,22 @@ export default function Register() {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        height: "100vh",
+        minHeight: "100vh",
+        padding: "24px 12px",
         background: "linear-gradient(to right, #1e3c72, #2a5298)",
       }}
     >
       <form
         style={{
-          width: "350px",
-          padding: "30px",
+          width: "min(100%, 400px)",
+          padding: "28px 20px",
           borderRadius: "15px",
           background: "white",
           boxShadow: "0 10px 30px rgba(0,0,0,0.2)",
           textAlign: "center",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
         }}
         onSubmit={handleRegister}
       >
@@ -86,6 +93,7 @@ export default function Register() {
 
         <input
           name="username"
+          value={user.username}
           placeholder="Tên đăng nhập"
           onChange={handleChange}
           style={inputStyle}
@@ -93,6 +101,7 @@ export default function Register() {
 
         <input
           name="email"
+          value={user.email}
           placeholder="Email"
           onChange={handleChange}
           style={inputStyle}
@@ -101,6 +110,7 @@ export default function Register() {
         <input
           name="password"
           type="password"
+          value={user.password}
           placeholder="Mật khẩu"
           onChange={handleChange}
           style={inputStyle}
@@ -109,8 +119,8 @@ export default function Register() {
         {/* ❌ Hiển thị lỗi */}
         {error && <p style={{ color: "red", marginBottom: "10px" }}>{error}</p>}
 
-        <button type="submit" style={buttonStyle}>
-          Đăng ký
+        <button type="submit" style={buttonStyle} disabled={loading}>
+          {loading ? "Đang đăng ký..." : "Đăng ký"}
         </button>
 
         {/* 👇 quay lại login */}
@@ -131,14 +141,17 @@ export default function Register() {
 // 🎨 Style
 const inputStyle = {
   width: "100%",
+  maxWidth: "320px",
   padding: "10px",
-  marginBottom: "15px",
+  marginBottom: "12px",
   borderRadius: "8px",
   border: "1px solid #ccc",
+  display: "block",
 };
 
 const buttonStyle = {
   width: "100%",
+  maxWidth: "320px",
   padding: "10px",
   background: "#1890ff",
   color: "white",

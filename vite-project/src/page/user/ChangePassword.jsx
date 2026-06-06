@@ -103,7 +103,7 @@ export default function ChangePassword() {
 
           {message && <div style={messageStyle}>{message}</div>}
 
-          <div style={actions}>
+          <div className="responsive-actions" style={actions}>
             <button
               type="button"
               style={secondaryBtn}

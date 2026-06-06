@@ -409,6 +409,8 @@ const tableCard = {
   ...card,
   marginTop: "30px",
   width: "700px",
+  maxHeight: "400px",
+  overflowY: "auto"
 };
 
 const input = {

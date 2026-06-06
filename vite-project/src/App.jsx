@@ -17,6 +17,7 @@ import MovieDetail from "./page/MovieDetail";
 import PaymentResult from "./page/user/PaymentResult";
 import BookingHistory from "./page/user/BookingHistory";
 import PaymentPage from "./page/user/PaymentPage";
+import ChangePassword from "./page/user/ChangePassword";
 
 function RequireAdmin({ children }) {
   let user = null;
@@ -56,6 +57,7 @@ function App() {
         <Route path="/booking" element={<UserBooking />} />
         <Route path="/payment" element={<PaymentPage />} />
         <Route path="/booking-history" element={<BookingHistory />} />
+        <Route path="/change-password" element={<ChangePassword />} />
         <Route path="/payment-result" element={<PaymentResult />} />
 
         <Route

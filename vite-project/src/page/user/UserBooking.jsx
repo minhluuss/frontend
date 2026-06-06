@@ -166,6 +166,43 @@ export default function UserBooking() {
     );
   };
 
+  const toggleSeatGroup = (seatIds) => {
+    if (seatIds.some((id) => bookedSeatIds.includes(id))) {
+      return;
+    }
+
+    setSelectedSeatIds((prev) => {
+      const allSelected = seatIds.every((id) => prev.includes(id));
+      if (allSelected) {
+        return prev.filter((id) => !seatIds.includes(id));
+      }
+      const next = new Set(prev);
+      seatIds.forEach((id) => next.add(id));
+      return Array.from(next);
+    });
+  };
+
+  const buildSeatDisplayItems = (rowSeats) => {
+    const items = [];
+    for (let i = 0; i < rowSeats.length; i += 1) {
+      const seat = rowSeats[i];
+      if (getSeatType(seat) === "COUPLE") {
+        const next = rowSeats[i + 1];
+        if (
+          next &&
+          getSeatType(next) === "COUPLE" &&
+          getSeatNumber(next) === getSeatNumber(seat) + 1
+        ) {
+          items.push({ kind: "COUPLE", seats: [seat, next] });
+          i += 1;
+          continue;
+        }
+      }
+      items.push({ kind: "SINGLE", seats: [seat] });
+    }
+    return items;
+  };
+
   const seatPrice = (seat) => {
     if (!getBasePrice(selectedShowtime)) {
       return 0;
@@ -177,7 +214,7 @@ export default function UserBooking() {
       return base * 1.5;
     }
     if (type === "COUPLE") {
-      return base * 2;
+      return base;
     }
     return base;
   };
@@ -276,58 +313,91 @@ export default function UserBooking() {
         {selectedShowtimeId && (
           <>
             <div style={screen}>MÀN HÌNH</div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              {groupedSeats.map((row) => (
-                <div
-                  key={row.row}
-                  style={{ display: "flex", alignItems: "center", gap: 10 }}
-                >
-                  <div style={{ width: 24, fontWeight: "bold" }}>{row.row}</div>
-                  <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                    {row.seats.map((seat) => {
-                      const seatId = getSeatId(seat);
-                      const isBooked = bookedSeatIds.includes(seatId);
-                      const isSelected = selectedSeatIds.includes(seatId);
+            <div style={seatLayout}>
+              <div style={seatGrid}>
+                {groupedSeats.map((row) => (
+                  <div
+                    key={row.row}
+                    style={{ display: "flex", alignItems: "center", gap: 10 }}
+                  >
+                    <div style={{ width: 24, fontWeight: "bold" }}>{row.row}</div>
+                    <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                      {buildSeatDisplayItems(row.seats).map((item) => {
+                        const seatIds = item.seats.map((s) => getSeatId(s));
+                        const isBooked = seatIds.some((id) =>
+                          bookedSeatIds.includes(id),
+                        );
+                        const isSelected = seatIds.every((id) =>
+                          selectedSeatIds.includes(id),
+                        );
+                        const isHighlighted =
+                          isSelected ||
+                          seatIds.some((id) => selectedSeatIds.includes(id));
 
-                      let bg = "#0f766e";
-                      if (getSeatType(seat) === "VIP") {
-                        bg = "#d97706";
-                      }
-                      if (getSeatType(seat) === "COUPLE") {
-                        bg = "#be185d";
-                      }
-                      if (isBooked) {
-                        bg = "#9ca3af";
-                      }
-                      if (isSelected) {
-                        bg = "#2563eb";
-                      }
+                        let bg = "#0f766e";
+                        if (item.kind === "COUPLE") {
+                          bg = "#be185d";
+                        } else if (getSeatType(item.seats[0]) === "VIP") {
+                          bg = "#d97706";
+                        }
+                        if (isBooked) {
+                          bg = "#9ca3af";
+                        }
+                        if (isHighlighted) {
+                          bg = "#2563eb";
+                        }
 
-                      return (
-                        <button
-                          key={seatId}
-                          type="button"
-                          disabled={isBooked}
-                          onClick={() => toggleSeat(seatId)}
-                          style={{
-                            width: 42,
-                            height: 34,
-                            border: "none",
-                            borderRadius: 6,
-                            color: "white",
-                            cursor: isBooked ? "not-allowed" : "pointer",
-                            background: bg,
-                            fontWeight: "bold",
-                          }}
-                          title={`${getSeatRow(seat)}${getSeatNumber(seat)} - ${getSeatTypeLabel(getSeatType(seat))}`}
-                        >
-                          {getSeatNumber(seat)}
-                        </button>
-                      );
-                    })}
+                        const label =
+                          item.kind === "COUPLE"
+                            ? `${getSeatNumber(item.seats[0])}-${getSeatNumber(item.seats[1])}`
+                            : getSeatNumber(item.seats[0]);
+
+                        return (
+                          <button
+                            key={seatIds.join("-")}
+                            type="button"
+                            disabled={isBooked}
+                            onClick={() => toggleSeatGroup(seatIds)}
+                            style={{
+                              width: item.kind === "COUPLE" ? 84 : 42,
+                              height: 34,
+                              border: "none",
+                              borderRadius: 6,
+                              color: "white",
+                              cursor: isBooked ? "not-allowed" : "pointer",
+                              background: bg,
+                              fontWeight: "bold",
+                            }}
+                            title={`${row.row}${label} - ${getSeatTypeLabel(getSeatType(item.seats[0]))}`}
+                          >
+                            {label}
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
+                ))}
+              </div>
+              <div style={legendColumn}>
+                <div style={legendItem}>
+                  <div style={{ ...legendBox, background: "#0f766e" }}></div>
+                  Ghế Thường
                 </div>
-              ))}
+                <div style={legendItem}>
+                  <div style={{ ...legendBox, background: "#d97706" }}></div>
+                  Ghế VIP
+                </div>
+                <div style={legendItem}>
+                  <div
+                    style={{
+                      ...legendBox,
+                      background: "#be185d",
+                      width: 28,
+                    }}
+                  ></div>
+                  Ghế Đôi
+                </div>
+              </div>
             </div>
 
             <div style={summaryBox}>
@@ -375,13 +445,45 @@ const input = {
 };
 const screen = {
   margin: "10px auto 24px",
-  width: "65%",
+  width: "min(100%, 420px)",
   textAlign: "center",
   borderTop: "5px solid #38bdf8",
   color: "#0ea5e9",
   letterSpacing: 2,
   fontWeight: "bold",
   paddingTop: 6,
+};
+const seatLayout = {
+  display: "flex",
+  alignItems: "flex-start",
+  gap: 20,
+  flexWrap: "wrap",
+};
+const seatGrid = {
+  display: "flex",
+  flexDirection: "column",
+  gap: 10,
+  flex: "1 1 520px",
+};
+const legendColumn = {
+  display: "flex",
+  flexDirection: "column",
+  gap: 12,
+  paddingTop: 6,
+  color: "#0f172a",
+  minWidth: 140,
+};
+const legendItem = {
+  display: "flex",
+  alignItems: "center",
+  gap: 8,
+  fontWeight: "600",
+};
+const legendBox = {
+  width: 18,
+  height: 18,
+  borderRadius: 4,
+  border: "1px solid rgba(255,255,255,0.2)",
 };
 const disabledOption = {
   color: "#9ca3af",

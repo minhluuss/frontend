@@ -85,6 +85,27 @@ export default function SeatManagement() {
 
   const getRowLabel = (index) => String.fromCharCode(65 + index);
 
+  const buildSeatDisplayItems = (rowSeats) => {
+    const items = [];
+    for (let i = 0; i < rowSeats.length; i += 1) {
+      const seat = rowSeats[i];
+      if (seat.seatType === "COUPLE") {
+        const next = rowSeats[i + 1];
+        if (
+          next &&
+          next.seatType === "COUPLE" &&
+          next.seatNumber === seat.seatNumber + 1
+        ) {
+          items.push({ kind: "COUPLE", seats: [seat, next] });
+          i += 1;
+          continue;
+        }
+      }
+      items.push({ kind: "SINGLE", seats: [seat] });
+    }
+    return items;
+  };
+
   const renderSeatGrid = () => {
     const rows = [];
     const effectiveCount = Math.max(targetCount, currentSeats.length);
@@ -144,21 +165,48 @@ export default function SeatManagement() {
             }
           }
 
-          rowSeats.push(
-            <div
-              key={`${currentRowChar}-${j}`}
-              style={currentStyle}
-              title={titleText}
-            >
-              {j}
-            </div>,
-          );
+          rowSeats.push({
+            seatNumber: j,
+            seatType,
+            isNewSeat,
+            style: currentStyle,
+            title: titleText,
+          });
         }
       }
+      const seatDisplayItems = buildSeatDisplayItems(rowSeats);
       rows.push(
         <div key={currentRowChar} style={rowWrapper}>
           <div style={rowLabel}>{currentRowChar}</div>
-          <div style={seatsRow}>{rowSeats}</div>
+          <div style={seatsRow}>
+            {seatDisplayItems.map((item) => {
+              if (item.kind === "COUPLE") {
+                const first = item.seats[0];
+                const second = item.seats[1];
+                const label = `${first.seatNumber}-${second.seatNumber}`;
+                return (
+                  <div
+                    key={`${currentRowChar}-${label}`}
+                    style={{ ...first.style, width: 78 }}
+                    title={`Hàng ${currentRowChar} - Ghế ${label} (Hạng Đôi)`}
+                  >
+                    {label}
+                  </div>
+                );
+              }
+
+              const seat = item.seats[0];
+              return (
+                <div
+                  key={`${currentRowChar}-${seat.seatNumber}`}
+                  style={seat.style}
+                  title={seat.title}
+                >
+                  {seat.seatNumber}
+                </div>
+              );
+            })}
+          </div>
         </div>,
       );
     }
@@ -309,6 +357,8 @@ const previewCard = {
   boxShadow: "0 5px 15px rgba(0,0,0,0.3)",
   color: "white",
   boxSizing: "border-box",
+  maxHeight: "400px",
+  overflowY: "auto"
 };
 const label = {
   display: "block",

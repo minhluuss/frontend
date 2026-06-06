@@ -22,6 +22,7 @@ export default function PaymentResult() {
       <div style={card}>
         <h1
           style={{
+            fontSize: 40,
             marginTop: 0,
             color:
               mode === "success"
@@ -48,7 +49,7 @@ export default function PaymentResult() {
 
         {bookingId && <p style={{ marginTop: 0 }}>Mã đơn: #{bookingId}</p>}
 
-        <div style={actions}>
+        <div className="responsive-actions" style={actions}>
           <button style={primaryBtn} onClick={() => navigate("/home")}>
             Về trang chủ
           </button>
@@ -77,7 +78,6 @@ const container = {
   padding: "12px",
   background: "linear-gradient(140deg, #f8fafc, #e2e8f0)",
 };
-
 const card = {
   width: "100%",
   maxWidth: 460,
