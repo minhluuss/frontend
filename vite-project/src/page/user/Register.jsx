@@ -18,9 +18,7 @@ export default function Register() {
     setUser({ ...user, [e.target.name]: e.target.value });
   };
 
-  // ==========================================
-  // BƯỚC 1: GỌI API /api/auth/register ĐỂ GỬI OTP
-  // ==========================================
+  // GỌI API /api/auth/register ĐỂ GỬI OTP
   const handleRequestOTP = (e) => {
     if (e) e.preventDefault();
     setError("");

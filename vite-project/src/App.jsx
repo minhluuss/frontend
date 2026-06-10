@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
 import Login from "./page/user/Login";
 import Register from "./page/user/Register";
 import Home from "./page/Home";
@@ -18,6 +18,8 @@ import PaymentResult from "./page/user/PaymentResult";
 import BookingHistory from "./page/user/BookingHistory";
 import PaymentPage from "./page/user/PaymentPage";
 import ChangePassword from "./page/user/ChangePassword";
+import CinemaHeader from "./page/CinemaHeader";
+import Footer from "./page/Footer";
 
 function RequireAdmin({ children }) {
   let user = null;
@@ -40,25 +42,37 @@ function RequireAdmin({ children }) {
   return children;
 }
 
+function UserLayout() {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+      
+      <main style={{ flex: 1 }}>
+        <Outlet /> 
+      </main>
+
+      <Footer /> 
+    </div>
+  );
+}
+
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/home" element={<Home />} />
-        <Route path="/cinemapage/:id" element={<CinemaPage />} />
-        <Route path="/cinemapage/:id/showtimes" element={<ShowtimesPage />} />
-        <Route
-          path="/cinemapage/:id/movie/:movieId"
-          element={<MovieDetail />}
-        />
-        <Route path="/booking" element={<UserBooking />} />
-        <Route path="/payment" element={<PaymentPage />} />
-        <Route path="/booking-history" element={<BookingHistory />} />
-        <Route path="/change-password" element={<ChangePassword />} />
-        <Route path="/payment-result" element={<PaymentResult />} />
+        <Route element={<UserLayout />}>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/home" element={<Home />} />
+          <Route path="/cinemapage/:id" element={<CinemaPage />} />
+          <Route path="/cinemapage/:id/showtimes" element={<ShowtimesPage />} />
+          <Route path="/cinemapage/:id/movie/:movieId" element={<MovieDetail />} />
+          <Route path="/booking" element={<UserBooking />} />
+          <Route path="/payment" element={<PaymentPage />} />
+          <Route path="/booking-history" element={<BookingHistory />} />
+          <Route path="/change-password" element={<ChangePassword />} />
+          <Route path="/payment-result" element={<PaymentResult />} />
+        </Route>
 
         <Route
           path="/admin"
@@ -69,7 +83,6 @@ function App() {
           }
         >
           <Route index element={<Navigate to="add-movie" replace />} />
-
           <Route path="add-movie" element={<AddMovie />} />
           <Route path="add-showtime" element={<AddShowtime />} />
           <Route path="add-cinema" element={<AddCinema />} />
@@ -78,6 +91,7 @@ function App() {
           <Route path="booking-report" element={<AdminBookingReport />} />
           <Route path="revenue-report" element={<AdminRevenueReport />} />
         </Route>
+
       </Routes>
     </BrowserRouter>
   );
