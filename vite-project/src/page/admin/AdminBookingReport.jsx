@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
 export default function AdminBookingReport() {
   const [cinemas, setCinemas] = useState([]);
   const [selectedCinemaId, setSelectedCinemaId] = useState("");
@@ -8,7 +8,7 @@ export default function AdminBookingReport() {
   const [deleteLoadingId, setDeleteLoadingId] = useState(null);
 
   useEffect(() => {
-    fetch("/api/cinemas")
+    fetch(`${API_BASE}/api/cinemas`)
       .then((res) => res.json())
       .then((data) => setCinemas(data || []))
       .catch((err) => console.error("Lỗi tải rạp:", err));
@@ -22,7 +22,7 @@ export default function AdminBookingReport() {
 
     setLoading(true);
     fetch(
-      `/api/admin/bookings?cinemaId=${selectedCinemaId}`,
+      `${API_BASE}/api/admin/bookings?cinemaId=${selectedCinemaId}`,
     )
       .then((res) => res.json())
       .then((data) => setBookings(data || []))
@@ -37,7 +37,7 @@ export default function AdminBookingReport() {
 
     setDeleteLoadingId(bookingId);
     try {
-      const res = await fetch(`/api/admin/bookings/${bookingId}`, {
+      const res = await fetch(`${API_BASE}/api/admin/bookings/${bookingId}`, {
         method: "DELETE",
       });
       if (!res.ok) {

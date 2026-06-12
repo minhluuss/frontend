@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import CinemaHeader from "../CinemaHeader";
-
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
 const HOLD_SECONDS = 10 * 60;
 
 export default function BookingHistory() {
@@ -27,7 +27,7 @@ export default function BookingHistory() {
     }
 
     setLoading(true);
-    fetch(`/api/bookings/history?userId=${userId}`)
+    fetch(`${API_BASE}/api/bookings/history?userId=${userId}`)
       .then(async (res) => {
         if (!res.ok) {
           throw new Error(await res.text());

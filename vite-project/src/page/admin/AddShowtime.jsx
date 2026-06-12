@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
 export default function AddShowtime() {
   const [showtimes, setShowtimes] = useState([]);
   const [movies, setMovies] = useState([]);
@@ -23,23 +23,23 @@ export default function AddShowtime() {
   useEffect(() => {
     fetchShowtimes();
 
-    fetch("/api/movies")
+    fetch(`${API_BASE}/api/movies`)
       .then((res) => res.json())
       .then((data) => setMovies(data));
 
-    fetch("/api/cinemas")
+    fetch(`${API_BASE}/api/cinemas`)
       .then((res) => res.json())
       .then((data) => setCinemas(data));
 
     // Lấy tất cả phòng để map tên phòng ra bảng
-    fetch("/api/rooms")
+    fetch(`${API_BASE}/api/rooms`)
       .then((res) => res.json())
       .then((data) => setAllRooms(data));
   }, []);
 
   // Lấy danh sách suất chiếu
   const fetchShowtimes = () => {
-    fetch("/api/showtimes")
+    fetch(`${API_BASE}/api/showtimes`)
       .then((res) => res.json())
       .then((data) => setShowtimes(data))
       .catch((err) => console.error("Lỗi tải suất chiếu:", err));
@@ -51,7 +51,7 @@ export default function AddShowtime() {
       setFilteredRooms([]);
       return;
     }
-    fetch(`/api/rooms/cinema/${formData.cinemaId}`)
+    fetch(`${API_BASE}/api/rooms/cinema/${formData.cinemaId}`)
       .then((res) => res.json())
       .then((data) => setFilteredRooms(data));
   }, [formData.cinemaId]);
@@ -118,8 +118,8 @@ export default function AddShowtime() {
 
     const isEditing = formData.id !== null;
     const url = isEditing
-      ? `/api/showtimes/${formData.id}`
-      : "/api/showtimes";
+      ? `${API_BASE}/api/showtimes/${formData.id}`
+      : `${API_BASE}/api/showtimes`;
     const method = isEditing ? "PUT" : "POST";
 
     fetch(url, {
@@ -170,7 +170,7 @@ export default function AddShowtime() {
   // 5. Xử lý khi bấm nút XÓA
   const handleDelete = (id) => {
     if (window.confirm("⚠️ Bạn có chắc chắn muốn xóa suất chiếu này không?")) {
-      fetch(`/api/showtimes/${id}`, { method: "DELETE" })
+      fetch(`${API_BASE}/api/showtimes/${id}`, { method: "DELETE" })
         .then(() => {
           alert("✅ Đã xóa thành công!");
           fetchShowtimes();

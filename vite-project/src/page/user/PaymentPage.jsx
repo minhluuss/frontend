@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
 const POLL_INTERVAL_MS = 3000;
 const POLL_REQUEST_TIMEOUT_MS = 2500;
 
@@ -29,7 +29,7 @@ export default function PaymentPage() {
 
     try {
       const res = await fetch(
-        `/api/bookings/${bookingId}/payment-info`,
+        `${API_BASE}/api/bookings/${bookingId}/payment-info`,
       );
       if (!res.ok) {
         throw new Error(await res.text());
@@ -73,7 +73,7 @@ export default function PaymentPage() {
 
       try {
         const res = await fetch(
-          `/api/bookings/${bookingId}/status`,
+          `${API_BASE}/api/bookings/${bookingId}/status`,
           {
             signal: controller.signal,
           },

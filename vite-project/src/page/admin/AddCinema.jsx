@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
 export default function AddCinema() {
   const [cinemas, setCinemas] = useState([]);
   const [formData, setFormData] = useState({
@@ -11,7 +12,7 @@ export default function AddCinema() {
 
   // 1. Lấy danh sách rạp khi vừa vào trang
   const fetchCinemas = () => {
-    fetch("/api/cinemas")
+    fetch(`${API_BASE}/api/cinemas`)
       .then((res) => res.json())
       .then((data) => setCinemas(data))
       .catch((err) => console.error("Lỗi tải danh sách rạp:", err));
@@ -36,8 +37,8 @@ export default function AddCinema() {
 
     const isEditing = formData.id !== null;
     const url = isEditing
-      ? `/api/cinemas/${formData.id}`
-      : "/api/cinemas";
+      ? `${API_BASE}/api/cinemas/${formData.id}`
+      : `${API_BASE}/api/cinemas`;
 
     const method = isEditing ? "PUT" : "POST";
 
@@ -77,7 +78,7 @@ export default function AddCinema() {
   // 4. Hàm bấm nút XÓA
   const handleDelete = (id) => {
     if (window.confirm("⚠️ Bạn có chắc chắn muốn xóa rạp này không?")) {
-      fetch(`/api/cinemas/${id}`, { method: "DELETE" })
+      fetch(`${API_BASE}/api/cinemas/${id}`, { method: "DELETE" })
         .then(() => {
           alert("✅ Đã xóa thành công!");
           fetchCinemas(); // Load lại bảng

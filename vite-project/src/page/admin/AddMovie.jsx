@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
 export default function AddMovie() {
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -19,7 +20,7 @@ export default function AddMovie() {
   });
 
   const fetchMovies = () => {
-    fetch("/api/movies")
+    fetch(`${API_BASE}/api/movies`)
       .then((res) => res.json())
       .then((data) => setMovies(data))
       .catch((err) => console.error("Lỗi tải danh sách phim:", err));
@@ -60,7 +61,7 @@ export default function AddMovie() {
         const formData = new FormData();
         formData.append("file", selectedFile);
 
-        const uploadRes = await fetch("/api/upload", {
+        const uploadRes = await fetch(`${API_BASE}/api/upload`, {
           method: "POST",
           body: formData,
         });
@@ -73,8 +74,8 @@ export default function AddMovie() {
 
       const isEditing = movie.id !== null;
       const url = isEditing
-        ? `/api/movies/${movie.id}`
-        : "/api/movies";
+        ? `${API_BASE}/api/movies/${movie.id}`
+        : `${API_BASE}/api/movies`;
       const method = isEditing ? "PUT" : "POST";
 
       const res = await fetch(url, {
@@ -129,7 +130,7 @@ export default function AddMovie() {
 
   const handleDelete = (id) => {
     if (window.confirm("⚠️ Bạn có chắc chắn muốn xóa bộ phim này không?")) {
-      fetch(`/api/movies/${id}`, { method: "DELETE" })
+      fetch(`${API_BASE}/api/movies/${id}`, { method: "DELETE" })
         .then(() => {
           alert("✅ Đã xóa phim thành công!");
           fetchMovies();

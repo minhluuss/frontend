@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
 export default function SeatManagement() {
   // 🎯 Thêm State cho Rạp
   const [cinemas, setCinemas] = useState([]);
@@ -20,7 +20,7 @@ export default function SeatManagement() {
 
   // 1. Khi load trang, lấy danh sách tất cả các RẠP
   useEffect(() => {
-    fetch("/api/cinemas")
+    fetch(`${API_BASE}/api/cinemas`)
       .then((res) => res.json())
       .then((data) => setCinemas(data))
       .catch((err) => console.error("Lỗi lấy danh sách rạp:", err));
@@ -38,7 +38,7 @@ export default function SeatManagement() {
     }
 
     // 🎯 GỌI ĐÚNG API VỪA SỬA Ở BACKEND
-    fetch(`/api/rooms/cinema/${selectedCinemaId}`)
+    fetch(`${API_BASE}/api/rooms/cinema/${selectedCinemaId}`)
       .then((res) => res.json())
       .then((data) => {
         setRooms(data);
@@ -56,7 +56,7 @@ export default function SeatManagement() {
       setTargetCount(0);
       return;
     }
-    fetch(`/api/rooms/${roomId}/seats`)
+    fetch(`${API_BASE}/api/rooms/${roomId}/seats`)
       .then((res) => res.json())
       .then((data) => {
         setCurrentSeats(data);
@@ -69,7 +69,7 @@ export default function SeatManagement() {
     if (!selectedRoomId) return;
     setLoading(true);
     fetch(
-      `/api/rooms/${selectedRoomId}/sync-seats?targetCount=${targetCount}`,
+      `${API_BASE}/api/rooms/${selectedRoomId}/sync-seats?targetCount=${targetCount}`,
       {
         method: "PUT",
       },

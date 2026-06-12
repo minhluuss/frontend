@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import CinemaHeader from "./CinemaHeader";
-
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
 export default function ShowtimesPage() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -56,7 +56,7 @@ export default function ShowtimesPage() {
   useEffect(() => {
     let isMounted = true;
 
-    fetch(`/api/cinemas/${id}`)
+    fetch(`${API_BASE}/api/cinemas/${id}`)
       .then((res) => res.json())
       .then((data) => {
         if (!isMounted) return;
@@ -69,11 +69,11 @@ export default function ShowtimesPage() {
       .catch((err) => console.error("Lỗi tải rạp:", err));
 
     Promise.all([
-      fetch(`/api/rooms/cinema/${id}`).then((res) =>
+      fetch(`${API_BASE}/api/rooms/cinema/${id}`).then((res) =>
         res.json(),
       ),
-      fetch("/api/showtimes").then((res) => res.json()),
-      fetch("/api/movies").then((res) => res.json()),
+      fetch(`${API_BASE}/api/showtimes`).then((res) => res.json()),
+      fetch(`${API_BASE}/api/movies`).then((res) => res.json()),
     ])
       .then(([roomsData, showtimesData, moviesData]) => {
         if (!isMounted) return;
@@ -206,7 +206,7 @@ export default function ShowtimesPage() {
   const goToMovieDetail = (movie) => {
     const movieId = movie?.id ?? movie?.Id;
     if (!movieId) return;
-    navigate(`/cinemapage/${id}/movie/${movieId}`);
+    navigate(`${API_BASE}/cinemapage/${id}/movie/${movieId}`);
   };
 
   const formatDuration = (minutes) => {
@@ -327,7 +327,7 @@ export default function ShowtimesPage() {
                       onClick={(e) => {
                         e.stopPropagation();
                         navigate(
-                          `/booking?cinemaId=${id}&movieId=${movie.id ?? movie.Id}`,
+                          `${API_BASE}/booking?cinemaId=${id}&movieId=${movie.id ?? movie.Id}`,
                         );
                       }}
                     >

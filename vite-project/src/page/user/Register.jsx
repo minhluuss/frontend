@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
 export default function Register() {
   const [user, setUser] = useState({
     username: "",
@@ -41,7 +41,7 @@ export default function Register() {
 
     setLoading(true);
     // 🔥 Sửa ở đây: Gọi đúng API đăng ký của Backend để tạo mã OTP
-    fetch("/api/auth/register", {
+    fetch(`${API_BASE}/api/auth/register`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -77,7 +77,7 @@ export default function Register() {
 
     setLoading(true);
     // 🔥 Sửa ở đây: Gọi đúng API verify của Backend
-    fetch("/api/auth/register/verify", {
+    fetch(`${API_BASE}/api/auth/register/verify`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

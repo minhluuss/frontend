@@ -1,5 +1,5 @@
 ﻿import { useEffect, useMemo, useState } from "react";
-
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
 export default function AdminRevenueReport() {
   // --- STATE MỚI CHO RẠP ---
   const [cinemas, setCinemas] = useState([]);
@@ -23,7 +23,7 @@ export default function AdminRevenueReport() {
 
   // Lấy danh sách rạp
   useEffect(() => {
-    fetch("/api/cinemas")
+    fetch(`${API_BASE}/api/cinemas`)
       .then((res) => res.json())
       .then((data) => {
         const rows = Array.isArray(data) ? data : [];
@@ -50,10 +50,10 @@ export default function AdminRevenueReport() {
     const cinemaQuery = `&cinemaId=${selectedCinemaId}`;
 
     Promise.all([
-      fetch(`/api/admin/revenue/weekly?weeks=12${cinemaQuery}`).then(
+      fetch(`${API_BASE}/api/admin/revenue/weekly?weeks=12${cinemaQuery}`).then(
         (res) => res.json(),
       ),
-      fetch(`/api/admin/revenue/monthly?months=12${cinemaQuery}`).then(
+      fetch(`${API_BASE}/api/admin/revenue/monthly?months=12${cinemaQuery}`).then(
         (res) => res.json(),
       ),
     ])
@@ -86,7 +86,7 @@ export default function AdminRevenueReport() {
     if (selectedCinemaId) params.set("cinemaId", selectedCinemaId);
 
     setWeeklyTopLoading(true);
-    fetch(`/api/admin/top-movies?${params.toString()}`)
+    fetch(`${API_BASE}/api/admin/top-movies?${params.toString()}`)
       .then((res) => res.json())
       .then((data) => setWeeklyTopMovies(Array.isArray(data) ? data : []))
       .catch((err) => {
@@ -113,7 +113,7 @@ export default function AdminRevenueReport() {
     if (selectedCinemaId) params.set("cinemaId", selectedCinemaId); // Thêm cinemaId vào query
 
     setMonthlyTopLoading(true);
-    fetch(`/api/admin/top-movies?${params.toString()}`)
+    fetch(`${API_BASE}/api/admin/top-movies?${params.toString()}`)
       .then((res) => res.json())
       .then((data) => setMonthlyTopMovies(Array.isArray(data) ? data : []))
       .catch((err) => {

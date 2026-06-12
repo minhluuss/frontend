@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import CinemaHeader from "./CinemaHeader";
-
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
 export default function MovieDetail() {
   const { id, movieId } = useParams();
   const navigate = useNavigate();
@@ -17,10 +17,10 @@ export default function MovieDetail() {
     let isMounted = true;
 
     Promise.all([
-      fetch(`/api/cinemas/${id}`).then((res) =>
+      fetch(`${API_BASE}/api/cinemas/${id}`).then((res) =>
         res.json(),
       ),
-      fetch("/api/movies").then((res) => res.json()),
+      fetch(`${API_BASE}/api/movies`).then((res) => res.json()),
     ])
       .then(([cinemaData, moviesData]) => {
         if (!isMounted) return;
@@ -133,7 +133,7 @@ export default function MovieDetail() {
                   style={bookBtn}
                   onClick={() =>
                     navigate(
-                      `/booking?cinemaId=${id}&movieId=${movie.id ?? movie.Id}`,
+                      `${API_BASE}/booking?cinemaId=${id}&movieId=${movie.id ?? movie.Id}`,
                     )
                   }
                 >

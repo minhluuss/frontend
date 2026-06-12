@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
 export default function AddRoom() {
   const [rooms, setRooms] = useState([]);
   const [cinemas, setCinemas] = useState([]);
@@ -14,13 +14,13 @@ export default function AddRoom() {
   // 1. Tải danh sách Rạp và Phòng khi vừa vào trang
   const fetchData = () => {
     // Lấy danh sách Rạp (để cho vào thẻ select)
-    fetch("/api/cinemas")
+    fetch(`${API_BASE}/api/cinemas`)
       .then((res) => res.json())
       .then((data) => setCinemas(data))
       .catch((err) => console.error("Lỗi tải rạp:", err));
 
     // Lấy danh sách Phòng (để hiển thị ra bảng)
-    fetch("/api/rooms")
+    fetch(`${API_BASE}/api/rooms`)
       .then((res) => res.json())
       .then((data) => setRooms(data))
       .catch((err) => console.error("Lỗi tải phòng:", err));
@@ -45,8 +45,8 @@ export default function AddRoom() {
 
     const isEditing = formData.id !== null;
     const url = isEditing
-      ? `/api/rooms/${formData.id}`
-      : "/api/rooms";
+      ? `${API_BASE}/api/rooms/${formData.id}`
+      : `${API_BASE}/api/rooms`;
     const method = isEditing ? "PUT" : "POST";
 
     fetch(url, {
@@ -91,7 +91,7 @@ export default function AddRoom() {
         "⚠️ Xóa phòng chiếu sẽ tự động XÓA TOÀN BỘ GHẾ và SUẤT CHIẾU thuộc phòng này. Bạn chắc chắn chứ?",
       )
     ) {
-      fetch(`/api/rooms/${id}`, { method: "DELETE" })
+     fetch(`${API_BASE}/api/rooms/${id}`, { method: "DELETE" })
         .then(() => {
           alert("✅ Đã xóa phòng chiếu!");
           fetchData();

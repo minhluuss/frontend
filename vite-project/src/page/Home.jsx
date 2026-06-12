@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
 function CinemaCard({ cinema, onClick }) {
   return (
     <div
@@ -39,7 +39,7 @@ export default function Home() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch("/api/cinemas")
+    fetch(`${API_BASE}/api/cinemas`)
       .then((res) => res.json())
       .then((data) => setCinemas(data))
       .catch((error) => console.error("Lỗi khi tải dữ liệu rạp:", error));
@@ -71,7 +71,7 @@ export default function Home() {
           <CinemaCard
             key={cinema.Id || cinema.id} // Bắt lỗi ID viết hoa
             cinema={cinema}
-            onClick={() => navigate(`/cinemapage/${cinema.Id || cinema.id}`)} // Bắt lỗi ID khi lấy link
+            onClick={() => navigate(`${API_BASE}/cinemapage/${cinema.Id || cinema.id}`)} // Bắt lỗi ID khi lấy link
           />
         ))}
       </div>

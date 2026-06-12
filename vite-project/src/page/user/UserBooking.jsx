@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
 export default function UserBooking() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -72,7 +72,7 @@ export default function UserBooking() {
     setBookedSeatIds([]);
     setSelectedSeatIds([]);
 
-    fetch(`/api/movies`)
+    fetch(`${API_BASE}/api/movies`)
       .then((res) => res.json())
       .then((data) => {
         const currentMovie = data.find((m) => getId(m) === movieId);
@@ -81,13 +81,13 @@ export default function UserBooking() {
       .catch((err) => console.error("Lỗi tải phim:", err));
 
     fetch(
-      `/api/showtimes/by-cinema-movie?cinemaId=${cinemaId}&movieId=${movieId}`,
+      `${API_BASE}/api/showtimes/by-cinema-movie?cinemaId=${cinemaId}&movieId=${movieId}`,
     )
       .then((res) => res.json())
       .then((data) => setShowtimes(Array.isArray(data) ? data : []))
       .catch((err) => console.error("Lỗi tải suất chiếu:", err));
 
-    fetch(`/api/rooms/cinema/${cinemaId}`)
+    fetch(`${API_BASE}/api/rooms/cinema/${cinemaId}`)
       .then((res) => res.json())
       .then((data) => setRooms(Array.isArray(data) ? data : []))
       .catch((err) => console.error("Lỗi tải phòng:", err));
@@ -102,7 +102,7 @@ export default function UserBooking() {
     }
 
     fetch(
-      `/api/showtimes/${selectedShowtimeId}/booked-seat-ids`,
+      `${API_BASE}/api/showtimes/${selectedShowtimeId}/booked-seat-ids`,
     )
       .then((res) => res.json())
       .then((data) =>
@@ -121,7 +121,7 @@ export default function UserBooking() {
       return;
     }
 
-    fetch(`/api/rooms/${roomId}/seats`)
+    fetch(`${API_BASE}/api/rooms/${roomId}/seats`)
       .then((res) => res.json())
       .then((data) => setSeats(Array.isArray(data) ? data : []))
       .catch((err) => console.error("Lỗi tải ghế:", err));
@@ -245,7 +245,7 @@ export default function UserBooking() {
 
     setLoading(true);
 
-    fetch("/api/bookings/payment-url", {
+    fetch(`${API_BASE}/api/bookings/payment-url`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

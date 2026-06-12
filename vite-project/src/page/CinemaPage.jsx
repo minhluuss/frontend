@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import CinemaHeader from "./CinemaHeader";
-
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
 export default function CinemaPage() {
   const { id } = useParams(); // 🎯 Lấy ID rạp từ URL
   const navigate = useNavigate();
@@ -24,7 +24,7 @@ export default function CinemaPage() {
     let isMounted = true;
 
     // 🎯 1. Gọi API lấy thông tin rạp theo ID
-    fetch(`/api/cinemas/${id}`)
+    fetch(`${API_BASE}/api/cinemas/${id}`)
       .then((res) => res.json())
       .then((data) => {
         if (!isMounted) return;
@@ -39,11 +39,11 @@ export default function CinemaPage() {
 
     // 🎯 2. Chỉ lấy phim thuộc rạp hiện tại (thông qua phòng + suất chiếu)
     Promise.all([
-      fetch(`/api/rooms/cinema/${id}`).then((res) =>
+      fetch(`${API_BASE}/api/rooms/cinema/${id}`).then((res) =>
         res.json(),
       ),
-      fetch("/api/showtimes").then((res) => res.json()),
-      fetch("/api/movies").then((res) => res.json()),
+      fetch(`${API_BASE}/api/showtimes`).then((res) => res.json()),
+      fetch(`${API_BASE}/api/movies`).then((res) => res.json()),
     ])
       .then(([roomsData, showtimesData, moviesData]) => {
         if (!isMounted) return;

@@ -1,6 +1,6 @@
 ﻿import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
 export default function ChangePassword() {
   const navigate = useNavigate();
   const [oldPassword, setOldPassword] = useState("");
@@ -38,7 +38,7 @@ export default function ChangePassword() {
     setLoading(true);
     try {
       // Gọi API mới để xin mã OTP
-      const res = await fetch("/api/auth/change-password/request-otp", {
+      const res = await fetch(`${API_BASE}/api/auth/change-password/request-otp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include", // Cần thiết để gửi JWT token đi
@@ -73,7 +73,7 @@ export default function ChangePassword() {
     setLoading(true);
     try {
       // Gọi API cũ nhưng giờ truyền thêm otp
-      const res = await fetch("/api/auth/change-password", {
+      const res = await fetch(`${API_BASE}/api/auth/change-password`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
