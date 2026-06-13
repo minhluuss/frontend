@@ -24,7 +24,7 @@ export default function CinemaPage() {
     let isMounted = true;
 
     // 🎯 1. Gọi API lấy thông tin rạp theo ID
-    fetch(`api/cinemas/${id}`)
+    fetch(`${API_BASE}/api/cinemas/${id}`)
       .then((res) => res.json())
       .then((data) => {
         if (!isMounted) return;
